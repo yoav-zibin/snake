@@ -10,9 +10,6 @@
   <script src="http://code.jquery.com/jquery-1.11.2.js"></script>
   <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
 
-  <!-- https://github.com/mattbryson/TouchSwipe-Jquery-Plugin
-  <script src="jquery.touchSwipe.min.js"></script> -->
-
 <script>
 $(document).ready(function(){
 	//Canvas stuff
@@ -223,18 +220,6 @@ $(document).ready(function(){
   canvas.addEventListener('touchend', function(e) {
     processTouch(e);
   }, false);
-
-
-
-/*
-  $("#canvas").swipe( {
-        //Generic swipe handler for all directions
-        swipe:function(event, direction, distance, duration, fingerCount, fingerData) {
-          changeDirection(direction);
-        },
-        //Default is 75px, set to 0 for demo so any distance triggers swipe
-        threshold:0
-      });*/
 });
 </script>
 <style>
@@ -248,6 +233,6 @@ html, body {
 </head>
 <body>
   <canvas id="canvas" style="width: 100%; height: auto;" width="300" height="300"></canvas>
-  v3
+  v4
 </body>
 </html>
