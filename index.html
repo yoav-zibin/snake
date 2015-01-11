@@ -26,6 +26,7 @@ $(document).ready(function(){
 
 	//Lets create the snake now
 	var snake_array; //an array of cells to make up the snake
+  var isGameOngoing = false;
 
 	function init()
 	{
@@ -34,13 +35,15 @@ $(document).ready(function(){
 		create_food(); //Now we can see the food particle
 		//finally lets display the score
 		score = 0;
-
-		//Lets move the snake now using a timer which will trigger the paint function
-		//every 60ms
-		if(typeof game_loop != "undefined") clearInterval(game_loop);
-		game_loop = setInterval(paint, 60);
 	}
-	init();
+
+  init();
+  draw();
+  setInterval(updateAndDraw, 60);
+
+  window.startNewGame = function () {
+    isGameOngoing = true;
+  }
 
 	function create_snake()
 	{
@@ -53,6 +56,15 @@ $(document).ready(function(){
 		}
 	}
 
+  function isFoodInsideSnake() {
+    for (var i = 0; i < snake_array.length; i++) {
+      if (food.x === snake_array[i].x && food.y === snake_array[i].y) {
+        return true;
+      }
+    }
+    return false;
+  }
+
 	//Lets create the food now
 	function create_food()
 	{
@@ -60,21 +72,17 @@ $(document).ready(function(){
 			x: Math.round(Math.random()*(w-cw)/cw),
 			y: Math.round(Math.random()*(h-cw)/cw),
 		};
-		//This will create a cell with x/y between 0-44
-		//Because there are 45(450/10) positions accross the rows and columns
+    if (isFoodInsideSnake()) {
+      create_food();
+    }
 	}
 
-	//Lets paint the snake now
-	function paint()
+	function updateAndDraw()
 	{
+    if (!isGameOngoing) {
+      return;
+    }
     changeDirection();
-
-		//To avoid the snake trail we need to paint the BG on every frame
-		//Lets paint the canvas now
-		ctx.fillStyle = "white";
-		ctx.fillRect(0, 0, w, h);
-		ctx.strokeStyle = "black";
-		ctx.strokeRect(0, 0, w, h);
 
 		//The movement code for the snake to come here.
 		//The logic is simple
@@ -95,9 +103,8 @@ $(document).ready(function(){
 		//Now if the head of the snake bumps into its body, the game will restart
 		if(nx == -1 || nx == w/cw || ny == -1 || ny == h/cw || check_collision(nx, ny, snake_array))
 		{
-			//restart game
-			init();
-			//Lets organize the code a bit now.
+			isGameOngoing = false;
+      init();
 			return;
 		}
 
@@ -120,6 +127,16 @@ $(document).ready(function(){
 		//The snake can now eat the food.
 
 		snake_array.unshift(tail); //puts back the tail as the first cell
+    draw();
+  }
+
+  function draw() {
+    //To avoid the snake trail we need to paint the BG on every frame
+    //Lets paint the canvas now
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = "black";
+    ctx.strokeRect(0, 0, w, h);
 
 		for(var i = 0; i < snake_array.length; i++)
 		{
@@ -222,17 +239,22 @@ $(document).ready(function(){
   }, false);
 });
 </script>
-<style>
-html, body {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-</style>
+  <style>
+  html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  </style>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
 </head>
 <body>
   <canvas id="canvas" style="width: 100%; height: auto;" width="300" height="300"></canvas>
-  v4
+
+  <button type="button" class="btn btn-primary"
+    onclick="startNewGame()">
+    New game
+  </button>
 </body>
 </html>
