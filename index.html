@@ -10,8 +10,8 @@
   <script src="http://code.jquery.com/jquery-1.11.2.js"></script>
   <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
 
-  <!-- https://github.com/mattbryson/TouchSwipe-Jquery-Plugin -->
-  <script src="jquery.touchSwipe.min.js"></script>
+  <!-- https://github.com/mattbryson/TouchSwipe-Jquery-Plugin
+  <script src="jquery.touchSwipe.min.js"></script> -->
 
 <script>
 $(document).ready(function(){
@@ -70,6 +70,8 @@ $(document).ready(function(){
 	//Lets paint the snake now
 	function paint()
 	{
+    changeDirection();
+
 		//To avoid the snake trail we need to paint the BG on every frame
 		//Lets paint the canvas now
 		ctx.fillStyle = "white";
@@ -157,23 +159,74 @@ $(document).ready(function(){
 		return false;
 	}
 
-  function changeDirection(key) {
+
+  function changeDirection() {
+    var key = changeDirQueue.shift();
+    if (!key) {
+      return;
+    }
     if(key == "left" && d != "right") d = "left";
     else if(key == "up" && d != "down") d = "up";
     else if(key == "right" && d != "left") d = "right";
     else if(key == "down" && d != "up") d = "down";
   }
 
+  var changeDirQueue = [];
+  function addChangeDir(dir) {
+    if (changeDirQueue.length > 0 && changeDirQueue[changeDirQueue.length - 1] === dir) {
+      return;
+    }
+    changeDirQueue.push(dir);
+  }
+
 	//Lets add the keyboard controls now
 	$(document).keydown(function(e){
 		var key = e.which;
-		changeDirection(
-      key == "37" ? "left"
-      : key == "38" ? "up"
-      : key == "39" ? "right"
-      : key == "40" ? "down" : null);
+    var dir = key == "37" ? "left"
+        : key == "38" ? "up"
+        : key == "39" ? "right"
+        : key == "40" ? "down" : null;
+    if (dir !== null) {
+	    addChangeDir(dir);
+    }
 	});
 
+  var lastX = null, lastY = null;
+  function processTouch(e) {
+    e.preventDefault(); // prevent scrolling when inside DIV
+    var touchobj = e.changedTouches[0];
+    var distX = touchobj.pageX - startX; // get horizontal dist traveled by finger while in contact with surface
+    var distY = touchobj.pageY - startY; // get vertical dist traveled by finger while in contact with surface
+    var swipedir = null;
+    var absDistX = Math.abs(distX);
+    var absDistY = Math.abs(distY);
+    if (absDistX >= 20 || absDistY >= 20) {
+      lastX = touchobj.pageX;
+      lastY = touchobj.pageY;
+      if (absDistX > absDistY) {
+        swipedir = (distX < 0) ? 'left' : 'right';
+      } else {
+        swipedir = (distY < 0) ? 'up' : 'down';
+      }
+      addChangeDir(swipedir);
+    }
+  }
+  canvas.addEventListener('touchstart', function(e) {
+    var touchobj = e.changedTouches[0];
+    lastX = touchobj.pageX;
+    lastY = touchobj.pageY;
+    e.preventDefault();
+  }, false);
+  touchsurface.addEventListener('touchmove', function(e) {
+    processTouch(e);
+  }, false);
+  touchsurface.addEventListener('touchend', function(e) {
+    processTouch(e);
+  }, false);
+
+
+
+/*
   $("#canvas").swipe( {
         //Generic swipe handler for all directions
         swipe:function(event, direction, distance, duration, fingerCount, fingerData) {
@@ -181,7 +234,7 @@ $(document).ready(function(){
         },
         //Default is 75px, set to 0 for demo so any distance triggers swipe
         threshold:0
-      });
+      });*/
 });
 </script>
 <style>
@@ -195,6 +248,6 @@ html, body {
 </head>
 <body>
   <canvas id="canvas" style="width: 100%; height: auto;" width="300" height="300"></canvas>
-  v2
+  v3
 </body>
 </html>
