@@ -1,0 +1,27 @@
+{
+  "name": "snake",
+  "version": "1.0.0",
+  "description": "Real-time snake game",
+  "main": "index.html",
+  "dependencies": {
+    "http-server": "~0.7.5"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-uglify": "~0.8.0",
+    "grunt-cli": "~0.1.13",
+    "grunt-processhtml": "~0.3.7",
+    "grunt-contrib-jshint": "~0.11.0",
+    "grunt-manifest": "~0.4.0",
+    "load-grunt-tasks": "~3.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yoav-zibin/snake.git"
+  },
+  "author": "Yoav Zibin",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/yoav-zibin/snake/issues"
+  }
+}
