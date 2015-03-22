@@ -1,69 +1,137 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="myApp">
 <head>
   <meta charset="utf-8">
   <title>Snake</title>
   <meta name="description" content="Snake">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" type="text/css" href="http://yoav-zibin.github.io/emulator/main.css">
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.3.11/seedrandom.min.js"></script>
+  <script>
+angular.module('myApp', [])
+  .controller('Ctrl',
+      function ($scope, $log, resizeGameAreaService, realTimeService) {
+  'use strict';
 
-  <!-- TODO: add .min.js everywhere -->
-  <script src="http://code.jquery.com/jquery-1.11.2.js"></script>
-  <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+  resizeGameAreaService.setWidthToHeight(1);
 
-<script>
-$(document).ready(function(){
-	//Canvas stuff
-	var canvas = $("#canvas")[0];
-	var ctx = canvas.getContext("2d");
-	var w = 300;
-	var h = 300;
-
-	//Lets save the cell width in a variable for easy control
-	var cw = 10;
-	var d; //"right", "left", "up", "down"
-	var food; // {x: ..., y: ...}
-	var score;
-
-	//Lets create the snake now
-	var snake_array; //an array of cells to make up the snake
   var isGameOngoing = false;
+  var isSinglePlayer = false;
+  var playersInfo = null;
+  var yourPlayerIndex = null;
 
-	function init()
-	{
-		d = "right"; //default direction
-		create_snake();
-		create_food(); //Now we can see the food particle
-		//finally lets display the score
-		score = 0;
-	}
+  // Game state
+  var snake_array; //an array of cells to make up my snake
+  var otherSnakes; // otherSnakes[playerIndex]  is the opponent's snake of playerIndex
+  var otherScores;
+  var foodCreatedNum; // Number of food pieces that were created (a food piece should be eaten by one player only).
+  var d; //Direction: "right", "left", "up", "down"
+  var food; // {x: ..., y: ...}
+  var score;
+  var startMatchTime; // For displaying a countdown.
 
-  init();
-  draw();
-  setInterval(updateAndDraw, 60);
-
-  window.startNewGame = function () {
+  function gotStartMatch(params) {
+    yourPlayerIndex = params.yourPlayerIndex;
+    playersInfo = params.playersInfo;
+    Math.seedrandom(params.matchId); // so all players will see the food in the same place.
     isGameOngoing = true;
-  }
+    isSinglePlayer = playersInfo.length === 1;
 
-	function create_snake()
-	{
-		var length = 5; //Length of the snake
-		snake_array = []; //Empty array to start with
-		for(var i = length-1; i>=0; i--)
-		{
-			//This will create a horizontal snake starting from the top left
-			snake_array.push({x: i, y:0});
-		}
-	}
-
-  function isFoodInsideSnake() {
-    for (var i = 0; i < snake_array.length; i++) {
-      if (food.x === snake_array[i].x && food.y === snake_array[i].y) {
-        return true;
+    foodCreatedNum = 0;
+    otherSnakes = [];
+    otherScores = [];
+    snake_array = create_snake(yourPlayerIndex);
+    score = 0;
+    for (var index = 0; index < playersInfo.length; index++) {
+      if (index !== yourPlayerIndex) {
+        otherSnakes[index] = create_snake(index);
+        otherScores[index] = 0;
       }
     }
-    return false;
+    create_food();
+    d = "right"; //default direction
+    startMatchTime = new Date().getTime();
   }
+
+  function gotMessage(params) {
+    var fromPlayerIndex = params.fromPlayerIndex;
+    var messageString = params.message;
+    // {f: foodCreatedNum, s: score, a: snake_array}
+    // The array representing the cells of a player's snake.
+    var messageObject = angular.fromJson(messageString);
+    otherSnakes[fromPlayerIndex] = messageObject.a;
+    otherScores[fromPlayerIndex] = messageObject.s;
+    while (foodCreatedNum < messageObject.f) {
+      create_food();
+    }
+  }
+
+  function gotEndMatch(endMatchScores) {
+    isGameOngoing = false;
+  }
+
+  function sendMessage(isReliable) {
+    if (isSinglePlayer || !isGameOngoing) {
+      return; // You shouldn't send messages if you're the only player
+    }
+    var messageString = angular.toJson({f: foodCreatedNum, s: score, a: snake_array});
+    if (isReliable) {
+      realTimeService.sendReliableMessage(messageString);
+    } else {
+      realTimeService.sendUnreliableMessage(messageString);
+    }
+  }
+
+  function lostMatch() {
+    if (!isGameOngoing) {
+      return;
+    }
+    isGameOngoing = false;
+    var endMatchScores = [];
+    for (var index = 0; index < playersInfo.length; index++) {
+      endMatchScores.push(index === yourPlayerIndex ? 0 : 1);
+    }
+    realTimeService.endMatch(endMatchScores);
+  }
+
+  realTimeService.setGame({
+    gotStartMatch: gotStartMatch,
+    gotMessage: gotMessage,
+    gotEndMatch: gotEndMatch
+  });
+
+
+	//Canvas stuff
+	var canvas = document.getElementById("canvas");
+	var ctx = canvas.getContext("2d");
+  // Constants
+	var w = 300;
+	var h = 300;
+	//Lets save the cell width in a variable for easy control
+	var cw = 10;
+
+  // Colors:
+  // black: canvas borders
+  // white: canvas background
+  // green: food
+  var playerSnakeColor = [
+    'blue', 'red', 'brown', 'purple', 'pink',
+    'purple', 'orange', 'silver', 'yellow', 'cyan'
+  ];
+
+  setInterval(updateAndDraw, 50);
+
+	function create_snake(playerIndex)
+	{
+		var length = 5; // Initial length of the snake
+		var arr = []; //Empty array to start with
+		for(var i = length-1; i>=0; i--) {
+			//This will create a horizontal snake starting from the top left
+			arr.push({x: i, y: playerIndex - Math.floor(playersInfo.length / 2) + (w / cw) / 2});
+		}
+    return arr;
+	}
 
 	//Lets create the food now
 	function create_food()
@@ -72,9 +140,7 @@ $(document).ready(function(){
 			x: Math.round(Math.random()*(w-cw)/cw),
 			y: Math.round(Math.random()*(h-cw)/cw),
 		};
-    if (isFoodInsideSnake()) {
-      create_food();
-    }
+    foodCreatedNum++;
 	}
 
 	function updateAndDraw()
@@ -82,6 +148,26 @@ $(document).ready(function(){
     if (!isGameOngoing) {
       return;
     }
+    var secondsFromStart =
+      Math.floor((new Date().getTime() - startMatchTime) / 1000);
+    if (secondsFromStart < 3) {
+      // Countdown to really start
+      changeDirQueue = []; // Clear any direction changes in the queue
+      draw();
+      // Draw countdown
+      var secondsToReallyStart = 3 - secondsFromStart;
+
+      // Gives you a hint what is your color
+      var yourColor = playerSnakeColor[yourPlayerIndex];
+      ctx.fillStyle = yourColor;
+      ctx.font = '80px sans-serif';
+      ctx.fillText("" + secondsToReallyStart, w / 2, h / 2);
+      // TODO: I18N
+      ctx.font = '20px sans-serif';
+      ctx.fillText("Your snake color is " + yourColor, w / 4 - 30, h / 4 - 30);
+      return;
+    }
+
     changeDirection();
 
 		//The movement code for the snake to come here.
@@ -103,8 +189,7 @@ $(document).ready(function(){
 		//Now if the head of the snake bumps into its body, the game will restart
 		if(nx == -1 || nx == w/cw || ny == -1 || ny == h/cw || check_collision(nx, ny, snake_array))
 		{
-			isGameOngoing = false;
-      init();
+      lostMatch();
 			return;
 		}
 
@@ -112,21 +197,22 @@ $(document).ready(function(){
 		//The logic is simple
 		//If the new head position matches with that of the food,
 		//Create a new head instead of moving the tail
-		if(nx == food.x && ny == food.y)
-		{
+    var isReliable = true; // If creating food (and increasing score), I want to pass the message reliably.
+		if(nx == food.x && ny == food.y) {
+      isReliable = false;
 			var tail = {x: nx, y: ny};
 			score++;
 			//Create new food
 			create_food();
-		}
-		else
-		{
+		} else {
 			var tail = snake_array.pop(); //pops out the last cell
 			tail.x = nx; tail.y = ny;
 		}
 		//The snake can now eat the food.
 
 		snake_array.unshift(tail); //puts back the tail as the first cell
+
+    sendMessage(isReliable);
     draw();
   }
 
@@ -138,24 +224,37 @@ $(document).ready(function(){
     ctx.strokeStyle = "black";
     ctx.strokeRect(0, 0, w, h);
 
-		for(var i = 0; i < snake_array.length; i++)
-		{
-			var c = snake_array[i];
-			//Lets paint 10px wide cells
-			paint_cell(c.x, c.y);
-		}
+    for (var i = 0; i < otherSnakes.length; i++) {
+      if (otherSnakes[i]) {
+        drawSnake(otherSnakes[i], i);
+      }
+    }
+    // Your snake is always drawn last (so it will be completely visible).
+    drawSnake(snake_array, yourPlayerIndex);
 
 		//Lets paint the food
-		paint_cell(food.x, food.y);
+		paint_cell(food.x, food.y, 'green');
 		//Lets paint the score
-		var score_text = "Score: " + score;
-		ctx.fillText(score_text, 5, h-5);
+    otherScores[yourPlayerIndex] = score;
+		for (var i = 0; i < otherScores.length; i++) {
+      ctx.font = '12px sans-serif';
+      var color = playerSnakeColor[i];
+      ctx.fillStyle = color;
+      // TODO: I18N
+  		ctx.fillText(color + ": " + otherScores[i], 5 + i * (w / playersInfo.length), h-5);
+    }
 	}
 
-	//Lets first create a generic function to paint cells
-	function paint_cell(x, y)
+  function drawSnake(snake, playerIndex) {
+    for(var i = 0; i < snake.length; i++) {
+      var c = snake[i];
+      paint_cell(c.x, c.y, playerSnakeColor[playerIndex]);
+    }
+  }
+
+	function paint_cell(x, y, color)
 	{
-		ctx.fillStyle = "blue";
+		ctx.fillStyle = color;
 		ctx.fillRect(x*cw, y*cw, cw, cw);
 		ctx.strokeStyle = "white";
 		ctx.strokeRect(x*cw, y*cw, cw, cw);
@@ -194,7 +293,7 @@ $(document).ready(function(){
   }
 
 	//Lets add the keyboard controls now
-	$(document).keydown(function(e){
+  document.addEventListener("keydown", function(e){
 		var key = e.which;
     var dir = key == "37" ? "left"
         : key == "38" ? "up"
@@ -203,7 +302,7 @@ $(document).ready(function(){
     if (dir !== null) {
 	    addChangeDir(dir);
     }
-	});
+	}, false);
 
   var lastX = null, lastY = null;
   function processTouch(e) {
@@ -238,23 +337,14 @@ $(document).ready(function(){
     processTouch(e);
   }, false);
 });
-</script>
-  <style>
-  html, body {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-  }
-  </style>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+  </script>
+  <script src="http://yoav-zibin.github.io/emulator/resizeGameAreaService.js"></script>
+  <script src="http://yoav-zibin.github.io/emulator/realTimeService.js"></script>
+  <script src="http://yoav-zibin.github.io/emulator/messageService.js"></script>
 </head>
-<body>
-  <canvas id="canvas" style="width: 100%; height: auto;" width="300" height="300"></canvas>
-
-  <button type="button" class="btn btn-primary"
-    onclick="startNewGame()">
-    New game
-  </button>
+<body ng-cloak ng-controller="Ctrl">
+  <div id="gameArea">
+    <canvas id="canvas" style="width: 100%; height: 100%;" width="300" height="300"></canvas>
+  </div>
 </body>
 </html>
