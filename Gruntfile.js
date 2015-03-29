@@ -63,7 +63,11 @@ module.exports = function(grunt) {
             'http://yoav-zibin.github.io/emulator/main.css',
             'dist/index.min.js'
           ],
-          network: ['dist/index.min.js.map', 'dist/index.js'],
+          network: [
+            'languages/en.js',
+            'dist/index.min.js.map',
+            'dist/index.js'
+          ],
           timestamp: true
         },
         dest: 'index.appcache',

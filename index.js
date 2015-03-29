@@ -317,7 +317,7 @@ function createCanvasController(canvas) {
   var lastX = null, lastY = null;
   function processTouch(e) {
     e.preventDefault(); // prevent scrolling when inside DIV
-    var touchobj = e.changedTouches[0];
+    var touchobj = e.targetTouches[0];
     var distX = touchobj.pageX - lastX; // get horizontal dist traveled by finger while in contact with surface
     var distY = touchobj.pageY - lastY; // get vertical dist traveled by finger while in contact with surface
     var swipedir = null;
