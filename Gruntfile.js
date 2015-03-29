@@ -23,7 +23,6 @@ module.exports = function(grunt) {
         nonbsp: true,
         nonew: true,
         notypeof: true,
-        singleGroups: true,
         jasmine: true,
         globals: {
           handleDragEvent: false,
@@ -32,7 +31,7 @@ module.exports = function(grunt) {
           console: false,
         },
       },
-      all: ['index.js']
+      all: ['index.js', 'realTimeService.js']
     },
     uglify: {
       options: {

@@ -1,15 +1,35 @@
 angular.module('myApp', [])
-  .controller('Ctrl',
-    ['$translate', '$scope', '$log', 'resizeGameAreaService', 'realTimeService',
-      function ($translate, $scope, $log, resizeGameAreaService, realTimeService) {
-  'use strict';
+  .run(['$translate', '$log', 'realTimeService', 'randomService',
+      function ($translate, $log, realTimeService, randomService) {
+'use strict';
 
-  resizeGameAreaService.setWidthToHeight(1);
+// Constants
+var canvasWidth = 300;
+var canvasHeight = 300;
+//Lets save the cell width in a variable for easy control
+var cellWidth = 10;
+var cellHeight = 10;
+var rowsNum = canvasWidth / cellWidth;
+var colsNum = canvasHeight / cellHeight;
+var drawEveryMilliseconds = 100;
 
+// There are 1-8 players.
+// Colors:
+// black: canvas borders
+// white: canvas background
+// green: food
+var playerSnakeColor = [
+  'blue', 'red', 'brown', 'purple',
+  'pink', 'purple', 'orange', 'silver',
+];
+
+function createCanvasController(canvas) {
+  $log.info("createCanvasController for canvas.id=" + canvas.id);
   var isGameOngoing = false;
   var isSinglePlayer = false;
   var playersInfo = null;
   var yourPlayerIndex = null;
+  var matchController = null;
 
   // Game state
   var allSnakes; // allSnakes[playerIndex]  is the snake of playerIndex
@@ -23,7 +43,7 @@ angular.module('myApp', [])
   function gotStartMatch(params) {
     yourPlayerIndex = params.yourPlayerIndex;
     playersInfo = params.playersInfo;
-    Math.seedrandom(params.matchId); // so all players will see the food in the same place.
+    matchController = params.matchController;
     isGameOngoing = true;
     isSinglePlayer = playersInfo.length === 1;
 
@@ -62,14 +82,14 @@ angular.module('myApp', [])
 
   function sendMessage(isReliable) {
     if (isSinglePlayer || !isGameOngoing) {
-      return; // You shouldn't send messages if you're the only player
+      return; // No need to send messages if you're the only player or game is over.
     }
     var messageString = angular.toJson(
         {f: foodCreatedNum, s: allScores[yourPlayerIndex], a: snake_array});
     if (isReliable) {
-      realTimeService.sendReliableMessage(messageString);
+      matchController.sendReliableMessage(messageString);
     } else {
-      realTimeService.sendUnreliableMessage(messageString);
+      matchController.sendUnreliableMessage(messageString);
     }
   }
 
@@ -78,34 +98,11 @@ angular.module('myApp', [])
       return;
     }
     isGameOngoing = false;
-    realTimeService.endMatch(allScores);
+    matchController.endMatch(allScores);
   }
 
-  realTimeService.setGame({
-    gotStartMatch: gotStartMatch,
-    gotMessage: gotMessage,
-    gotEndMatch: gotEndMatch
-  });
-
-
 	//Canvas stuff
-	var canvas = document.getElementById("canvas");
 	var ctx = canvas.getContext("2d");
-  // Constants
-	var w = 300;
-	var h = 300;
-	//Lets save the cell width in a variable for easy control
-	var cw = 10;
-  var drawEveryMilliseconds = 100;
-
-  // Colors:
-  // black: canvas borders
-  // white: canvas background
-  // green: food
-  var playerSnakeColor = [
-    'blue', 'red', 'brown', 'purple', 'pink',
-    'purple', 'orange', 'silver', 'yellow', 'cyan'
-  ];
 
   var drawInterval;
 
@@ -126,7 +123,7 @@ angular.module('myApp', [])
 		var arr = []; //Empty array to start with
 		for(var i = length-1; i>=0; i--) {
 			//This will create a horizontal snake starting from the top left
-			arr.push({x: i, y: playerIndex - Math.floor(playersInfo.length / 2) + w / cw / 2});
+			arr.push({x: i, y: playerIndex - Math.floor(playersInfo.length / 2) + canvasWidth / cellWidth / 2});
 		}
     return arr;
 	}
@@ -135,8 +132,8 @@ angular.module('myApp', [])
 	function create_food()
 	{
 		food = {
-			x: Math.round(Math.random()*(w-cw)/cw),
-			y: Math.round(Math.random()*(h-cw)/cw),
+			x: randomService.randomFromTo(foodCreatedNum * 2, 0, colsNum),
+			y: randomService.randomFromTo(foodCreatedNum * 2 + 1, 0, rowsNum),
 		};
     foodCreatedNum++;
 	}
@@ -159,12 +156,12 @@ angular.module('myApp', [])
       var yourColor = playerSnakeColor[yourPlayerIndex];
       ctx.fillStyle = yourColor;
       ctx.font = '80px sans-serif';
-      ctx.fillText("" + secondsToReallyStart, w / 2, h / 2);
+      ctx.fillText("" + secondsToReallyStart, canvasWidth / 2, canvasHeight / 2);
 
       ctx.font = '20px sans-serif';
       var msg = $translate.instant("YOUR_SNAKE_COLOR_IS",
           {color: $translate.instant(yourColor.toUpperCase())});
-      ctx.fillText(msg, w / 4 - 30, h / 4 - 30);
+      ctx.fillText(msg, canvasWidth / 4 - 30, canvasHeight / 4 - 30);
       return;
     }
 
@@ -192,7 +189,7 @@ angular.module('myApp', [])
 		//This will restart the game if the snake hits the wall
 		//Lets add the code for body collision
 		//Now if the head of the snake bumps into its body, the game will restart
-		if (nx === -1 || nx === w/cw || ny === -1 || ny === h/cw ||
+		if (nx === -1 || nx === colsNum || ny === -1 || ny === rowsNum ||
         check_collision(nx, ny, snake_array)) {
       lostMatch();
 			return;
@@ -226,9 +223,9 @@ angular.module('myApp', [])
     //To avoid the snake trail we need to paint the BG on every frame
     //Lets paint the canvas now
     ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
     ctx.strokeStyle = "black";
-    ctx.strokeRect(0, 0, w, h);
+    ctx.strokeRect(0, 0, canvasWidth, canvasHeight);
 
     var i;
     for (i = 0; i < allSnakes.length; i++) {
@@ -249,7 +246,7 @@ angular.module('myApp', [])
       var msg = $translate.instant("COLOR_SCORE_IS",
           {color: $translate.instant(color.toUpperCase()), score: "" + allScores[i]});
   		ctx.fillText(msg,
-          5 + i * w / playersInfo.length, h-5);
+          5 + i * canvasWidth / playersInfo.length, canvasHeight - 5);
     }
 	}
 
@@ -263,9 +260,9 @@ angular.module('myApp', [])
 	function paint_cell(x, y, color)
 	{
 		ctx.fillStyle = color;
-		ctx.fillRect(x*cw, y*cw, cw, cw);
+		ctx.fillRect(x*cellWidth, y*cellHeight, cellWidth, cellHeight);
 		ctx.strokeStyle = "white";
-		ctx.strokeRect(x*cw, y*cw, cw, cw);
+		ctx.strokeRect(x*cellWidth, y*cellHeight, cellWidth, cellHeight);
 	}
 
 	function check_collision(x, y, array)
@@ -349,6 +346,20 @@ angular.module('myApp', [])
   canvas.addEventListener('touchend', function(e) {
     processTouch(e);
   }, false);
+
+  return {
+    gotStartMatch: gotStartMatch,
+    gotMessage: gotMessage,
+    gotEndMatch: gotEndMatch
+  };
+} // end of createCanvasController
+
+realTimeService.init({
+  createCanvasController: createCanvasController,
+  canvasWidth: canvasWidth,
+  canvasHeight: canvasHeight
+});
+
 }])
 .config(['$translateProvider', function($translateProvider) {
   'use strict';

@@ -10,7 +10,5 @@ window.angularTranslations = {
   BROWN: 'Brown',
   PINK: 'Pink',
   ORANGE: 'Orange',
-  SILVER: 'Silver',
-  YELLOW: 'Yellow',
-  CYAN: 'Cyan'
+  SILVER: 'Silver'
 };
