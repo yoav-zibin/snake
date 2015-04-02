@@ -10,5 +10,6 @@ window.angularTranslations = {
   BROWN: 'חום',
   PINK: 'ורוד',
   ORANGE: 'כתום',
+  YELLOW: 'צהוב',
   SILVER: 'כסף'
 };

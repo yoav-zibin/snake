@@ -20,7 +20,7 @@ var drawEveryMilliseconds = 100;
 // green: food
 var playerSnakeColor = [
   'blue', 'red', 'brown', 'purple',
-  'pink', 'purple', 'orange', 'silver',
+  'pink', 'yellow', 'orange', 'silver',
 ];
 
 function createCanvasController(canvas) {
