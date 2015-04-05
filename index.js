@@ -318,6 +318,14 @@ function createCanvasController(canvas) {
   function processTouch(e) {
     e.preventDefault(); // prevent scrolling and dispatching mouse events.
     var touchobj = e.targetTouches[0]; // targetTouches includes only touch points in this canvas.
+    if (!touchobj) {
+      return;
+    }
+    if (lastX === null) {
+      lastX = touchobj.pageX;
+      lastY = touchobj.pageY;
+      return;
+    }
     var distX = touchobj.pageX - lastX; // get horizontal dist traveled by finger while in contact with surface
     var distY = touchobj.pageY - lastY; // get vertical dist traveled by finger while in contact with surface
     var swipedir = null;
@@ -335,10 +343,9 @@ function createCanvasController(canvas) {
     }
   }
   canvas.addEventListener('touchstart', function(e) {
-    var touchobj = e.changedTouches[0];
-    lastX = touchobj.pageX;
-    lastY = touchobj.pageY;
-    e.preventDefault();
+    lastX = null;
+    lastY = null;
+    processTouch(e);
   }, false);
   canvas.addEventListener('touchmove', function(e) {
     processTouch(e);
