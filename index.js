@@ -75,6 +75,7 @@ function createCanvasController(canvas) {
   }
 
   function gotEndMatch(endMatchScores) {
+    // Note that endMatchScores can be null if the game was cancelled (e.g., someone disconnected).
     allScores = endMatchScores;
     isGameOngoing = false;
     stopDrawInterval();
