@@ -41,6 +41,9 @@ function createCanvasController(canvas) {
   var startMatchTime; // For displaying a countdown.
 
   function gotStartMatch(params) {
+    if (isGameOngoing) {
+      throw new Error("Realtime platform bug with gotStartMatch - email to yoav.zibin@gmail.com");
+    }
     yourPlayerIndex = params.yourPlayerIndex;
     playersInfo = params.playersInfo;
     matchController = params.matchController;
@@ -62,6 +65,9 @@ function createCanvasController(canvas) {
   }
 
   function gotMessage(params) {
+    if (!isGameOngoing) {
+      throw new Error("Realtime platform bug with gotMessage - email to yoav.zibin@gmail.com");
+    }
     var fromPlayerIndex = params.fromPlayerIndex;
     var messageString = params.message;
     // {f: foodCreatedNum, s: score, a: snake_array}
@@ -75,6 +81,9 @@ function createCanvasController(canvas) {
   }
 
   function gotEndMatch(endMatchScores) {
+    if (!isGameOngoing) {
+      throw new Error("Realtime platform bug with gotEndMatch - email to yoav.zibin@gmail.com");
+    }
     // Note that endMatchScores can be null if the game was cancelled (e.g., someone disconnected).
     allScores = endMatchScores;
     isGameOngoing = false;
