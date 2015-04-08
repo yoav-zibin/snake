@@ -11,7 +11,7 @@ var cellWidth = 10;
 var cellHeight = 10;
 var rowsNum = canvasWidth / cellWidth;
 var colsNum = canvasHeight / cellHeight;
-var drawEveryMilliseconds = 100;
+var drawEveryMilliseconds = 120;
 
 // There are 1-8 players.
 // Colors:
@@ -109,8 +109,8 @@ function createCanvasController(canvas) {
 
   function setDrawInterval() {
     stopDrawInterval();
-    // Every 3 food pieces we increase the snake speed (to a max of 30ms interval).
-    var intervalMillis = Math.max(30, drawEveryMilliseconds - 10 * Math.floor(foodCreatedNum / 3));
+    // Every 2 food pieces we increase the snake speed (to a max speed of 50ms interval).
+    var intervalMillis = Math.max(50, drawEveryMilliseconds - 10 * Math.floor(foodCreatedNum / 2));
     drawInterval = setInterval(updateAndDraw, intervalMillis);
   }
 
@@ -137,6 +137,7 @@ function createCanvasController(canvas) {
 			y: randomService.randomFromTo(foodCreatedNum * 2 + 1, 0, rowsNum),
 		};
     foodCreatedNum++;
+    setDrawInterval();
 	}
 
 	function updateAndDraw()
