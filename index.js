@@ -201,10 +201,10 @@ function createCanvasController(canvas) {
 		//The logic is simple
 		//If the new head position matches with that of the food,
 		//Create a new head instead of moving the tail
-    var isReliable = true; // If creating food (and increasing score), I want to pass the message reliably.
+    var isReliable = false; // Passing unreliable messages is faster
 		var tail;
     if(nx === food.x && ny === food.y) {
-      isReliable = false;
+      isReliable = true; // If creating food (and increasing score), I want to pass the message reliably.
 			tail = {x: nx, y: ny};
       allScores[yourPlayerIndex]++;
 			//Create new food
