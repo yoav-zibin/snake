@@ -161,8 +161,8 @@ function createCanvasController(canvas) {
       ctx.fillText("" + secondsToReallyStart, canvasWidth / 2, canvasHeight / 2);
 
       ctx.font = '20px sans-serif';
-      var msg = $translate.instant("YOUR_SNAKE_COLOR_IS",
-          {color: $translate.instant(yourColor.toUpperCase())});
+      var msg = $translate("YOUR_SNAKE_COLOR_IS",
+          {color: $translate(yourColor.toUpperCase())});
       ctx.fillText(msg, canvasWidth / 4 - 30, canvasHeight / 4 - 30);
       return;
     }
@@ -245,8 +245,8 @@ function createCanvasController(canvas) {
       ctx.font = '12px sans-serif';
       var color = playerSnakeColor[i];
       ctx.fillStyle = color;
-      var msg = $translate.instant("COLOR_SCORE_IS",
-          {color: $translate.instant(color.toUpperCase()), score: "" + allScores[i]});
+      var msg = $translate("COLOR_SCORE_IS",
+          {color: $translate(color.toUpperCase()), score: "" + allScores[i]});
   		ctx.fillText(msg,
           5 + i * canvasWidth / playersInfo.length, canvasHeight - 5);
     }
@@ -369,9 +369,4 @@ realTimeService.init({
   canvasHeight: canvasHeight
 });
 
-}])
-.config(['$translateProvider', function($translateProvider) {
-  'use strict';
-
-  $translateProvider.init(['en', 'he']);
 }]);
