@@ -1,3 +1,16 @@
-window.angularTranslations =
-{"YOUR_SNAKE_COLOR_IS":"Your snake color is {{color}}","COLOR_SCORE_IS":"{{color}}: {{score}}","WHITE":"White","BLACK":"Black","RED":"Red","BLUE":"Blue","GREEN":"Green","PURPLE":"Purple","BROWN":"Brown","PINK":"Pink","ORANGE":"Orange","YELLOW":"Yellow","SILVER":"Silver"}
-;
+window.angularTranslationsLoaded('en',{
+"YOUR_SNAKE_COLOR_IS":"Your snake color is {{color}}",
+"COLOR_SCORE_IS":"{{color}}: {{score}}",
+"BLUE":"Blue",
+"RED":"Red",
+"BROWN":"Brown",
+"PURPLE":"Purple",
+"PINK":"Pink",
+"YELLOW":"Yellow",
+"ORANGE":"Orange",
+"SILVER":"Silver",
+"WHITE":"White",
+"BLACK":"Black",
+"GREEN":"Green",
+"CYAN":"Cyan"
+});
