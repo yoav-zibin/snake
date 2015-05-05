@@ -1,4 +1,4 @@
-angular.module('myApp', [])
+angular.module('myApp', ['ngTouch','ui.bootstrap'])
   .run(['$translate', '$log', 'realTimeService', 'randomService',
       function ($translate, $log, realTimeService, randomService) {
 'use strict';
@@ -24,6 +24,7 @@ var playerSnakeColor = [
 ];
 
 function createCanvasController(canvas) {
+
   $log.info("createCanvasController for canvas.id=" + canvas.id);
   var isGameOngoing = false;
   var isSinglePlayer = false;

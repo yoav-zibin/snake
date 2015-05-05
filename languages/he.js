@@ -12,5 +12,10 @@ window.angularTranslationsLoaded('he',{
 "WHITE":"לבן",
 "BLACK":"שחור",
 "GREEN":"ירוק",
-"CYAN":"טורקיז"
+"CYAN":"טורקיז",
+"RULES_OF_SNAKE":"Rules of SNAKE",
+"RULES_SLIDE1":"אתה נחש רעב. לאכול מזון הירוק כדי למלא את הבטן שלך ולגדול.",
+"RULES_SLIDE2":"אבל להיות זהיר יותר שאתם אוכלים מהר יותר אתה מקבל. לא לקרוס לתוך הקיר.",
+"RULES_SLIDE3":"ולא לקרוס לתוך הזנב שלך.",
+"CLOSE":"לסגור"
 });

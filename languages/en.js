@@ -12,5 +12,10 @@ window.angularTranslationsLoaded('en',{
 "WHITE":"White",
 "BLACK":"Black",
 "GREEN":"Green",
-"CYAN":"Cyan"
+"CYAN":"Cyan",
+"RULES_OF_SNAKE":"Rules of SNAKE",
+"RULES_SLIDE1":"You are a hungry snake. Eat the green food to fill your belly and grow.",
+"RULES_SLIDE2":"But be careful the more you eat the faster you get. Don't crash into the wall.",
+"RULES_SLIDE3":"And don't crash into your own tail.",
+"CLOSE":"Close"
 });
