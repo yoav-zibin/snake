@@ -1,0 +1,21 @@
+window.angularTranslations = {
+  YOUR_SNAKE_COLOR_IS: "اللون ثعبان الخاص بك هو{{color}}",
+  COLOR_SCORE_IS: "{{color}}: {{score}}",
+  WHITE: "أبيض",
+  BLACK: "أسود",
+  RED: "أحمر",
+  BLUE: "الزرقاء",
+  GREEN: "أخضر",
+  PURPLE: "أرجواني",
+  BROWN: 'أسمر',
+  PINK: 'وردي',
+  ORANGE: 'البرتقالي',
+  YELLOW: 'أصفر',
+  SILVER: 'فضة',
+    "RULES_OF_SNAKE":"قواعد ثعبان",
+    "RULES_SLIDE1":"كنت ثعبان جائع. تناول الطعام الأخضر لملء بطنك والنمو.",
+    "RULES_SLIDE2":"عند تناول الطعام عقبة يتم إسقاط، احترس من تيه كتل حمراء.",
+    "RULES_SLIDE3":"ولكن كن حذرا وكلما أكل أسرع تحصل عليه. لا تحطم في الحائط.",
+    "RULES_SLIDE4":"ولا تصطدم الذيل الخاص بك.",
+    "CLOSE":"قريب"
+};
