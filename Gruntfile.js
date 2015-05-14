@@ -55,15 +55,26 @@ module.exports = function(grunt) {
         options: {
           basePath: '.',
           cache: [
-            'http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.3.11/seedrandom.min.js',
-            'http://yoav-zibin.github.io/emulator/dist/realTimeServices.2.min.js',
-            'http://yoav-zibin.github.io/emulator/main.css',
-            'dist/index.min.js'
+              'http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js',
+              'http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-touch.min.js',
+              'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.1/ui-bootstrap-tpls.min.js',
+              'http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css',
+              'http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/fonts/glyphicons-halflings-regular.woff',
+              'http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/fonts/glyphicons-halflings-regular.ttf',
+              'http://yoav-zibin.github.io/emulator/dist/realTimeServices.2.min.js',
+              'http://yoav-zibin.github.io/emulator/main.css',
+                'dist/index.min.js',
+                  'game.css',
+                'imgs/HelpSlide1.png',
+                'imgs/HelpSlide2.png',
+                'imgs/HelpSlide3.png'
+
+
           ],
           network: [
             'languages/en.js',
             'languages/he.js',
+            'languages/ar.js',
             'dist/index.min.js.map',
             'dist/index.js'
           ],
