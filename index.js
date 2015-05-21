@@ -23,7 +23,6 @@ var playerSnakeColor = [
   'pink', 'yellow', 'orange', 'silver',
 ];
 
-
 function createCanvasController(canvas) {
 
   $log.info("createCanvasController for canvas.id=" + canvas.id);
@@ -62,7 +61,6 @@ function createCanvasController(canvas) {
     startMatchTime = new Date().getTime();
     setDrawInterval();
   }
-
 
   function gotMessage(params) {
     var fromPlayerIndex = params.fromPlayerIndex;
