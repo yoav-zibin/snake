@@ -46,7 +46,7 @@
 
 <body>
 <div style="position:absolute; bottom:5px; left: 5px">
-    <span ng-click="isHelpModalShown = true"
+    <span ng-click="isHelpModalShown = pause()"
           class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
 </div>
 
@@ -55,7 +55,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" ng-click="isHelpModalShown = false" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" ng-click="isHelpModalShown = unPause()" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="myModalLabel">
                     {{ 'RULES_OF_SNAKE' | translate }}
                 </h4>
@@ -101,7 +101,7 @@
                 </carousel>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" ng-click="isHelpModalShown = false">
+                <button type="button" class="btn btn-primary" ng-click="isHelpModalShown = unPause()">
                     {{ 'CLOSE' | translate }}
                 </button>
             </div>

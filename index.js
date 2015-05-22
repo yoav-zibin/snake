@@ -1,6 +1,6 @@
 angular.module('myApp', ['ngTouch','ui.bootstrap'])
-  .run(['$translate', '$log', 'realTimeService', 'randomService',
-      function ($translate, $log, realTimeService, randomService) {
+  .run(['$translate', '$log', 'realTimeService', 'randomService', '$rootScope',
+      function ($translate, $log, realTimeService, randomService, $rootScope) {
 'use strict';
 
 // Constants
@@ -12,6 +12,8 @@ var cellHeight = 10;
 var rowsNum = canvasWidth / cellWidth;
 var colsNum = canvasHeight / cellHeight;
 var drawEveryMilliseconds = 120;
+var isGameOngoing = false;
+var isSinglePlayer = false;
 
 // There are 1-8 players.
 // Colors:
@@ -23,11 +25,28 @@ var playerSnakeColor = [
   'pink', 'yellow', 'orange', 'silver',
 ];
 
+$rootScope.pause = function() {
+
+  if(isSinglePlayer){
+      isGameOngoing = false;
+  }
+  return true;
+};
+
+
+$rootScope.unPause = function() {
+  if(isSinglePlayer){
+      isGameOngoing = true;
+  }
+  return false;
+};
+
+
+
 function createCanvasController(canvas) {
 
   $log.info("createCanvasController for canvas.id=" + canvas.id);
-  var isGameOngoing = false;
-  var isSinglePlayer = false;
+
   var playersInfo = null;
   var yourPlayerIndex = null;
   var matchController = null;
@@ -40,6 +59,9 @@ function createCanvasController(canvas) {
   var d; //Direction: "right", "left", "up", "down"
   var food; // {x: ..., y: ...}
   var startMatchTime; // For displaying a countdown.
+
+
+
 
   function gotStartMatch(params) {
     yourPlayerIndex = params.yourPlayerIndex;
